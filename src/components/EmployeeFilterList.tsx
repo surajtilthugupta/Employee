@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, TextInput, Switch } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { useSelector, useDispatch } from 'react-redux';
 import { deleteEmployee } from '../features/employeeSlice';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,10 +10,13 @@ const EmployeeFilterList = ({ setEditingEmployee }) => {
   const employees = useSelector(state => state.employees.employees);
   const dispatch = useDispatch();
 
+  // Extract unique departments for Picker
+  const uniqueDepartments = ['All', ...new Set(employees.map(emp => emp.department))];
+
   // State for filters
   const [filters, setFilters] = useState({
     search: '',
-    department: '',
+    department: 'All',
     showActive: true,
   });
 
@@ -48,12 +52,17 @@ const EmployeeFilterList = ({ setEditingEmployee }) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
+  // Clear filters
+  const handleClearFilters = () => {
+    setFilters({ search: '', department: 'All', showActive: true });
+  };
+
   // Filter Employees based on criteria
   const filteredEmployees = employees.filter(emp => {
     return (
       emp.name.toLowerCase().includes(filters.search.toLowerCase()) &&
-      (filters.department === '' || emp.department === filters.department) &&
-      (filters.showActive ? emp.status === 'Active' : true)
+      (filters.department === 'All' || emp.department === filters.department) &&
+      (filters.showActive ? emp.status === 'Active' : emp.status === 'Inactive')
     );
   });
 
@@ -66,21 +75,43 @@ const EmployeeFilterList = ({ setEditingEmployee }) => {
           placeholder="Search by name"
           value={filters.search}
           onChangeText={text => handleFilterChange('search', text)}
+          placeholderTextColor={'#999'}
         />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Filter by Department"
-          value={filters.department}
-          onChangeText={text => handleFilterChange('department', text)}
-        />
+        {/* Picker for Department Selection */}
+        <View style={styles.pickerContainer}>
+          <Text style={styles.label}>Department</Text>
+          <Picker
+            selectedValue={filters.department}
+            onValueChange={(value) => handleFilterChange('department', value)}
+            style={styles.picker}
+          >
+            {uniqueDepartments.map((dept, index) => (
+              <Picker.Item key={index} label={dept} value={dept} />
+            ))}
+          </Picker>
+        </View>
 
+        {/* Active/Inactive Toggle */}
         <View style={styles.switchContainer}>
-          <Text>Show Active Only</Text>
+          <Text>{filters.showActive ? 'Active Employees' : 'Inactive Employees'}</Text>
           <Switch
             value={filters.showActive}
+            thumbColor={filters.showActive ? '#4CAF50' : '#f44336'}
+            trackColor={{ true: '#4CAF50', false: '#f44336' }}
             onValueChange={value => handleFilterChange('showActive', value)}
           />
+        </View>
+
+        {/* Apply and Clear Buttons */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.applyButton} onPress={() => { }}>
+            <Text style={styles.buttonText}>Apply Filters</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.clearButton} onPress={handleClearFilters}>
+            <Text style={styles.buttonText}>Clear Filters</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -109,31 +140,12 @@ const EmployeeFilterList = ({ setEditingEmployee }) => {
               {/* Status Indicator */}
               <Text
                 style={[
-                  styles.status,
+                  styles.statusStyle,
                   item.status === 'Active' ? styles.active : styles.inactive,
                 ]}
               >
                 {item.status}
               </Text>
-            </View>
-
-            {/* Edit & Delete Buttons */}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => setEditingEmployee(item)}
-              >
-                <Ionicons name="create-outline" size={20} color="#fff" />
-                <Text style={styles.buttonText}>Edit</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => dispatch(deleteEmployee(item.id))}
-              >
-                <Ionicons name="trash-outline" size={20} color="#fff" />
-                <Text style={styles.buttonText}>Delete</Text>
-              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -143,107 +155,35 @@ const EmployeeFilterList = ({ setEditingEmployee }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-    padding: 10,
-  },
-  filterContainer: {
-    padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  input: {
-    backgroundColor: '#eee',
-    padding: 8,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  switchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginVertical: 5,
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: 15,
-    marginVertical: 10,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 4,
-    borderLeftWidth: 5,
-  },
-  activeCard: {
-    borderLeftColor: '#4CAF50',
-    backgroundColor: '#E8F5E9',
-  },
-  inactiveCard: {
-    borderLeftColor: '#D32F2F',
-    backgroundColor: '#FFEBEE',
-  },
-  profileImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    alignSelf: 'center',
-    marginBottom: 10,
-    borderWidth: 3,
-    borderColor: '#ddd',
-  },
-  infoContainer: {
-    alignItems: 'center',
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  text: {
-    fontSize: 14,
-    color: '#555',
-    marginTop: 2,
-  },
-  salary: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    marginTop: 5,
-  },
-  status: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginTop: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    textAlign: 'center',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
-  },
-  editButton: {
-    backgroundColor: '#1976D2',
-    padding: 10,
-    borderRadius: 8,
-  },
-  deleteButton: {
-    backgroundColor: '#D32F2F',
-    padding: 10,
-    borderRadius: 8,
-  },
+  container: { flex: 1, backgroundColor: '#F5F5F5', padding: 10 },
+  filterContainer: { padding: 10, backgroundColor: '#fff', borderRadius: 10, marginBottom: 10 },
+  input: { backgroundColor: '#eee', padding: 8, borderRadius: 8, marginBottom: 10 },
+  pickerContainer: { backgroundColor: '#eee', borderRadius: 8, marginBottom: 10 },
+  label: { fontSize: 14, fontWeight: 'bold', marginBottom: 5, paddingLeft: 5,color:'#333' },
+  picker: { height: 50, width: '100%', color: '#333' },
+  switchContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 5,color:'#333' },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10,color:'#333' },
+  applyButton: { backgroundColor: '#1976D2', padding: 10, borderRadius: 8, flex: 1, marginRight: 5 },
+  clearButton: { backgroundColor: '#D32F2F', padding: 10, borderRadius: 8, flex: 1, marginLeft: 5 },
+  card: { backgroundColor: '#fff', padding: 15, marginVertical: 10, borderRadius: 12, elevation: 4, borderLeftWidth: 5 },
+  activeCard: { borderLeftColor: '#4CAF50', backgroundColor: '#E8F5E9' },
+  inactiveCard: { borderLeftColor: '#D32F2F', backgroundColor: '#FFEBEE' },
+  profileImage: { width: 90, height: 90, borderRadius: 45, alignSelf: 'center', marginBottom: 10 },
+  infoContainer: { alignItems: 'center' },
+  name: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  text: { fontSize: 14, color: '#555', marginTop: 2 },
+  buttonContainer: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 },
   buttonText: {
     color: '#fff',
-    marginLeft: 5,
     fontSize: 14,
     fontWeight: 'bold',
   },
+  statusStyle: { fontSize: 15, fontWeight: 'bold', marginTop: 5 },
+  active: { color: 'green' },
+  inactive: { color: 'red' },
+  salary: { fontSize: 16, fontWeight: 'bold', color: '#4CAF50', marginTop: 5 },
+
 });
 
 export default EmployeeFilterList;
+

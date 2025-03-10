@@ -99,7 +99,7 @@ const FilterComponent = ({ employees, setFilteredEmployees }) => {
         </Picker>
       </View>
 
-      <View style={styles.switchContainer}>
+      <View>
         <TouchableOpacity
           style={styles.checkboxContainer}
           onPress={() => setIsActive(true)}
