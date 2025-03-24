@@ -42,7 +42,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <AppNavigator />
+        <AppNavigator />``
       </PersistGate>
     </Provider>
   );
