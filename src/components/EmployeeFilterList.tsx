@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity, TextInput, Switch } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { useSelector, useDispatch } from 'react-redux';
-import { deleteEmployee } from '../features/employeeSlice';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const EmployeeFilterList = ({ setEditingEmployee }) => {
   const employees = useSelector(state => state.employees.employees);
-  const dispatch = useDispatch();
 
   // Extract unique departments for Picker
   const uniqueDepartments = ['All', ...new Set(employees.map(emp => emp.department))];
