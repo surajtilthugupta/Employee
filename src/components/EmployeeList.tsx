@@ -14,13 +14,17 @@ const EmployeeList = () => {
     dispatch(fetchEmployees());
   }, [dispatch]);
 
-  if (loading) {
-    return <ActivityIndicator size="large" />;
-  }
-
   const handleEditEmployee = (employee) => {
     navigation.navigate('EditEmployee', { editingEmployee: employee });
   };
+
+  const handleExpenseTracker = (employee) => {
+    navigation.navigate('ExpenseTracker', { employee }); 
+  };
+
+  if (loading) {
+    return <ActivityIndicator size="large" />;
+  }
 
   return (
     <View style={styles.container}>
@@ -58,7 +62,7 @@ const EmployeeList = () => {
                 </Text>
               </View>
 
-              {/* Edit & Delete Buttons */}
+              {/* Edit, Delete, Expense Buttons */}
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   style={styles.editButton}
@@ -74,6 +78,14 @@ const EmployeeList = () => {
                 >
                   <Ionicons name="trash-outline" size={20} color="#fff" />
                   <Text style={styles.buttonText}>Delete</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.expenseCardButton}
+                  onPress={() => handleExpenseTracker(item)}
+                >
+                  <Ionicons name="analytics-outline" size={20} color="#fff" />
+                  <Text style={styles.buttonText}>Expense</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -91,7 +103,7 @@ const EmployeeList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5', // Light gray background
+    backgroundColor: '#F5F5F5',
     padding: 10,
   },
   card: {
@@ -164,6 +176,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 10,
+    flexWrap: 'wrap',
+    gap: 8,
   },
   editButton: {
     flexDirection: 'row',
@@ -177,6 +191,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#D32F2F',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+  },
+  expenseCardButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF9800',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,

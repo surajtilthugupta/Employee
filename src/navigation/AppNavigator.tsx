@@ -8,6 +8,8 @@ import EmployeeScreen from '../components/EmployeeScreen';
 import MapScreen from '../screens/MapScreen';
 import { TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import ExpenseTracker from '../components/ExpenseTracker';
+import AddOrUpdateExpense from '../components/AddOrUpdateExpense';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +36,8 @@ const AppNavigator = () => {
         <Stack.Screen name="EditEmployee" component={EmployeeForm} />
         <Stack.Screen name='FilterEmployee' component={EmployeeScreen} />
         <Stack.Screen name="EmployeeFilter" component={EmployeeList} />
+        <Stack.Screen name="ExpenseTracker" component={ExpenseTracker}/>
+        <Stack.Screen name="AddOrUpdateExpense" component={AddOrUpdateExpense} />
         <Stack.Screen name="Map" component={MapScreen} />
       </Stack.Navigator>
     </NavigationContainer>
