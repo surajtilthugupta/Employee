@@ -4,8 +4,14 @@ import AppNavigator from './src/navigation/AppNavigator';
 import store, { persistor } from './src/store/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import messaging from '@react-native-firebase/messaging';
-import { Alert } from 'react-native';
-
+import { Alert, View } from 'react-native';
+import { Text } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import { AppointmentProvider } from './src/context/AppointmentContext';
+import PatientScreen from './src/screens/PatientScreen';
+import DoctorScreen from './src/screens/DoctorScreen';
+import Icon from 'react-native-vector-icons/FontAwesome6';
 const App = () => {
 
   useEffect(() => {
@@ -39,12 +45,34 @@ const App = () => {
 
     return unsubscribe;
   }, []);
+  const Tab = createBottomTabNavigator();
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <AppNavigator />
-      </PersistGate>
-    </Provider>
+    //<Provider store={store}>
+    //  <PersistGate loading={null} persistor={persistor}>
+    //    <AppNavigator />
+    //  </PersistGate>
+    //</Provider>
+    <AppointmentProvider>
+      <NavigationContainer>
+        <Tab.Navigator>
+          <Tab.Screen
+            name="Patient"
+            component={PatientScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <Icon name="add" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen name="Doctor" component={DoctorScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <Icon name="user-doctor" size={size} color={color} />
+              ),
+            }} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </AppointmentProvider>
   );
 };
 
